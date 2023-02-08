@@ -1,0 +1,6 @@
+# simple API for robo arm
+
+ - ping
+ - speed:new_speed
+ - set_angle:servo_id:new_angle
+ 
