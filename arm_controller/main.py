@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 from robo_arm import RoboArm
-import Gamepad.Gamepad
-from Gamepad.Gamepad import available as gamepad_available
+from gamepad.Controllers import PG9099
+from gamepad.Gamepad import available as gamepad_available
 import time
 import serial
 import logging
@@ -13,7 +13,7 @@ def get_joystick():
         print('Please connect your gamepad...')
         while not gamepad_available():
             time.sleep(1.0)
-    js = Gamepad.PG9099()
+    js = PG9099()
     print('Gamepad connected')
     js.startBackgroundUpdates()
     return js

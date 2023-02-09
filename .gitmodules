@@ -1,3 +1,0 @@
-[submodule "arm_controller/Gamepad"]
-	path = arm_controller/Gamepad
-	url = https://github.com/piborg/Gamepad.git
