@@ -3,6 +3,7 @@
 from robo_arm import RoboArm
 from gamepad.Controllers import PG9099
 from gamepad.Gamepad import available as gamepad_available
+import sys
 import time
 import serial
 import logging
@@ -31,13 +32,22 @@ def get_serial():
 
 
 if __name__ == "__main__":
-    print("Starting PicoArm controller...")
-    js = get_joystick()
-    ser = get_serial()
     logger = logging.getLogger("robo-arm")
+    logger.info("Starting PicoArm controller...")
+    try:
+        ser = get_serial()
+    except serial.serialutil.SerialException as ex:
+        logger.error(f"Failed to get serial port, got exception: {ex}")
+        sys.exit(1)
+
     print("Setting up PicoArm control side")
+    try:
+        js = get_joystick()
+    except Exception as ex:
+        logger.error(f"Failed to setup joystick, exception: {ex}")
+
     arm = RoboArm(logger, js, ser)
-    print("PicoArm has responded, moving on to main event loop")
+    logger.info("PicoArm has responded, moving on to main event loop")
     print(
         "PicoArm controls:\n"
         " - speed controls: Select - "
