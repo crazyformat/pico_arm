@@ -23,9 +23,9 @@ class Arm:
         line = line.strip()
         if line == "ping":
             print("pong")
-        elif line.starts_with("set_angle:"):
+        elif line.startswith("set_angle:"):
             self.process_set_angle(line)
-        elif line.starts_with("speed:"):
+        elif line.startswith("speed:"):
             self.process_speed(line)
         else:
             return
