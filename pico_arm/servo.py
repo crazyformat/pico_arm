@@ -31,6 +31,7 @@ class Servo:
             utime.sleep(self.delay)
 
     def set_angle(self, angle):
+        angle = int(angle)
         if angle < 0 or angle > 165:
             print("can't set angle outside of range [0;165]")
         else:
@@ -51,4 +52,5 @@ class SmallServo(Servo):
 class BigServo(Servo):
     min = 2600
     max = 7200
+    
 

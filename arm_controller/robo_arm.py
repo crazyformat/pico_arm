@@ -164,7 +164,7 @@ class RoboArm:
 
     # send servo speed to pico-arm
     def set_servo_speed(self):
-        self.serial.write(f"speed:{self.servo_speed}\n")
+        self.serial.write(f"set_speed:{self.servo_speed}\n")
 
     def claw_grab(self):
         self.claw.grab()
