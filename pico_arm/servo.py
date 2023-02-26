@@ -38,7 +38,6 @@ class Servo:
             ratio = (self.max - self.min) / 165
             # angle to duty u16
             duty = angle * ratio + self.min
-            print(f"angle to duty: {angle} * {ratio} = {duty}")
             self.pwm.duty_u16(int(duty))
 
     def set_speed(self, speed):

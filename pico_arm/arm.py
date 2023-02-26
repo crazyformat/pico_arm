@@ -36,6 +36,7 @@ class Arm:
             speed = m.group(1)
             for servo in self.servos.values():
                 servo.set_speed(speed)
+            print("done")
         else:
             print("wrong set_speed command format")
 
@@ -46,6 +47,7 @@ class Arm:
             (servo, angle) = m.groups()
             if servo in self.servos:
                 self.servos[servo].set_angle(angle)
+                print("done")
             else:
                 print("Error: servo {} is not available".format(servo))
         else:

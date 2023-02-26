@@ -37,13 +37,21 @@ class Servo:
     def move(self, step):
         new_angle = self.angle + step
         if self.min_angle < new_angle < self.max_angle:
-            self.angle = new_angle
-            self.set_angle(new_angle)
+            self.angle = int(new_angle)
+            self.set_angle(int(new_angle))
 
     def set_angle(self, angle):
         if self.min_angle < angle < self.max_angle:
-            self.angle = angle
-            self.serial.write(f"set_angle:{self.servo_id}:{angle}\n")
+            self.angle = int(angle)
+            self.serial.write(f"set_angle:{self.servo_id}:{int(angle)}\n".encode('utf-8'))
+            res = self.serial.readline()
+            res = res.strip().decode('utf-8')
+            if res == "done":
+                print("command accepted")
+            else:
+                print(f"didn't get expected response: res = {res}")
+
+
 
 class Claw(Servo):
     def grab(self):
@@ -86,9 +94,9 @@ class RoboArm:
             time.sleep(POLL_INTERVAL)
 
     def ping(self):
-        self.serial.write("ping\n")
+        self.serial.write("ping\n".encode('utf-8'))
         res = self.serial.readline()
-        res = res.strip()
+        res = res.strip().decode('utf-8')
         if res == "pong":
             return True
         else:
@@ -99,11 +107,13 @@ class RoboArm:
         if self.js.beenPressed('START'):
             new_speed = self.servo_speed + 10
             if MIN_SERVO_SPEED < new_speed < MAX_SERVO_SPEED:
+                print(f"start pressed, increasing speed, new speed: {new_speed}")
                 self.servo_speed = new_speed
                 self.set_servo_speed()
         elif self.js.beenPressed('SELECT'):
             new_speed = self.servo_speed - 10
             if MIN_SERVO_SPEED < new_speed < MAX_SERVO_SPEED:
+                print(f"select pressed, decreasing speed, new speed: {new_speed}")
                 self.servo_speed = new_speed
                 self.set_servo_speed()
 
@@ -111,8 +121,10 @@ class RoboArm:
     def process_claw(self):
         # claw control, either open or closed
         if self.js.beenPressed('RB') or self.js.isPressed('RB'):
+            print("RB, moving right")
             self.claw.move(2)
         elif self.js.beenPressed('LB') or self.js.isPressed('LB'):
+            print("LB, moving left")
             self.claw.move(-2)
 
         # claw is a different type of axis
@@ -131,28 +143,35 @@ class RoboArm:
 
     def process_movements(self):
         base_axis_pos = self.js.axis(BASE_SERVO_AXIS)
-        if base_axis_pos != 0:
+        if base_axis_pos > 100 or base_axis_pos < -100:
+            print("moving base servo")
             self.base.move(js_position_to_step(base_axis_pos))
 
         upper_incl_axis_pos = self.js.axis(UPPER_INCLINE_AXIS)
-        if upper_incl_axis_pos != 0:
+        if upper_incl_axis_pos > 100 or upper_incl_axis_pos < -100:
+            print("moving upper incline servo")
             self.upper_incl.move(js_position_to_step(
                 upper_incl_axis_pos
             ))
         lower_incl_axis_pos = self.js.axis(LOWER_INCLINE_AXIS)
-        if lower_incl_axis_pos != 0:
+        if lower_incl_axis_pos > 100 or lower_incl_axis_pos < -100:
+            print("moving lower incline servo")
             self.lower_incl.move(js_position_to_step(
                 lower_incl_axis_pos
             ))
 
     def process_actions(self):
         if self.js.beenPressed('A'):
+            print("A - claw grab")
             self.claw_grab()
         if self.js.beenPressed('B'):
+            print("B - attack")
             self.attack()
         if self.js.beenPressed('X'):
+            print("X - cobra pose")
             self.cobra_pose()
         if self.js.beenPressed('Y'):
+            print("Y - shrunk pose")
             self.shrunk()
 
     # get back to balanced pose, reset servo speed
@@ -164,17 +183,17 @@ class RoboArm:
 
     # send servo speed to pico-arm
     def set_servo_speed(self):
-        self.serial.write(f"set_speed:{self.servo_speed}\n")
+        self.serial.write(f"set_speed:{self.servo_speed}\n".encode('utf-8'))
 
     def claw_grab(self):
         self.claw.grab()
 
     def attack(self):
         self.balanced_pose()
-        time.wait(0.2)
+        time.sleep(0.2)
         self.claw.open()
         self.lower_incl.set_angle(100)
-        self.ipper_incl.set_angle(100)
+        self.upper_incl.set_angle(100)
         time.sleep(0.1)
         self.claw.grab()
         time.sleep(0.1)
