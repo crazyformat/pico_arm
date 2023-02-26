@@ -14,7 +14,7 @@ AXIS_MAX_VALUE = 32767
 
 def js_position_to_step(pos):
     # min-max: -32767:32767
-    return (pos // 11_000) + 1
+    return (pos // 0.4) + 1
 
 
 class Servo:
@@ -41,8 +41,9 @@ class Servo:
             self.set_angle(int(new_angle))
 
     def set_angle(self, angle):
-        if self.min_angle < angle < self.max_angle:
+        if self.min_angle <= angle <= self.max_angle:
             self.angle = int(angle)
+            print(f"set_angle:{self.servo_id}:{int(angle)}\n".encode('utf-8'))
             self.serial.write(f"set_angle:{self.servo_id}:{int(angle)}\n".encode('utf-8'))
             res = self.serial.readline()
             res = res.strip().decode('utf-8')
@@ -50,24 +51,28 @@ class Servo:
                 print("command accepted")
             else:
                 print(f"didn't get expected response: res = {res}")
+        else:
+            print(f"trying to set angle out of allowed values: {angle}")
 
 
 
 class Claw(Servo):
     def grab(self):
         # open claw wide
+        print("setting angle to 50")
         self.set_angle(50)
-        time.sleep(0.2)
+        time.sleep(0.4)
+        print("setting angle to 150")
         self.set_angle(150)
-        time.sleep(0.2)
+        time.sleep(0.4)
 
     def open(self):
         self.set_angle(90)
-        time.sleep(0.2)
+        time.sleep(0.4)
 
     def close(self):
         self.set_angle(150)
-        time.sleep(0.2)
+        time.sleep(0.4)
 
 class RoboArm:
     def __init__(self, log, js, ser):
@@ -120,10 +125,10 @@ class RoboArm:
 
     def process_claw(self):
         # claw control, either open or closed
-        if self.js.beenPressed('RB') or self.js.isPressed('RB'):
+        if self.js.isPressed('RB') or self.js.isPressed('RB'):
             print("RB, moving right")
             self.claw.move(2)
-        elif self.js.beenPressed('LB') or self.js.isPressed('LB'):
+        elif self.js.isPressed('LB') or self.js.isPressed('LB'):
             print("LB, moving left")
             self.claw.move(-2)
 
@@ -135,26 +140,27 @@ class RoboArm:
         # 32767 means claw is close
         # values close to -32767 means claw is open
         claw_axis_pos = self.js.axis('RT')
-        if claw_axis_pos != -AXIS_MAX_VALUE:
-            claw_axis_pos += AXIS_MAX_VALUE
+        if claw_axis_pos != -1:
+            print(f"moving claw, {claw_axis_pos}")
+            claw_axis_pos += 1
             pos_to_angle = claw_axis_pos / \
-                (AXIS_MAX_VALUE * 2 / MAX_SERVO_ANGLE)
+                ( 2 / MAX_SERVO_ANGLE)
             self.claw.set_angle(pos_to_angle)
 
     def process_movements(self):
         base_axis_pos = self.js.axis(BASE_SERVO_AXIS)
-        if base_axis_pos > 100 or base_axis_pos < -100:
+        if base_axis_pos > 0.05 or base_axis_pos < -0.05:
             print("moving base servo")
             self.base.move(js_position_to_step(base_axis_pos))
 
         upper_incl_axis_pos = self.js.axis(UPPER_INCLINE_AXIS)
-        if upper_incl_axis_pos > 100 or upper_incl_axis_pos < -100:
+        if upper_incl_axis_pos > 0.05 or upper_incl_axis_pos < -0.05:
             print("moving upper incline servo")
             self.upper_incl.move(js_position_to_step(
                 upper_incl_axis_pos
             ))
         lower_incl_axis_pos = self.js.axis(LOWER_INCLINE_AXIS)
-        if lower_incl_axis_pos > 100 or lower_incl_axis_pos < -100:
+        if lower_incl_axis_pos > 0.05 or lower_incl_axis_pos < -0.05:
             print("moving lower incline servo")
             self.lower_incl.move(js_position_to_step(
                 lower_incl_axis_pos
@@ -207,10 +213,10 @@ class RoboArm:
 
     def balanced_pose(self):
         # set all servos to some middle values
-        self.base.set_angle(25)
-        time.sleep(0.05)
+        self.base.set_angle(100)
+        time.sleep(0.4)
         self.lower_incl.set_angle(70)
-        time.sleep(0.05)
+        time.sleep(0.4)
         self.upper_incl.set_angle(100)
         time.sleep(0.05)
         self.claw.set_angle(90)
