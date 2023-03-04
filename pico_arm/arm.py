@@ -7,7 +7,7 @@ class Arm:
     according to commands. This class is specific for 4 servos arm.
     """
     set_angle_re = re.compile(r'^set_angle:([a-z0-9_-]+):(\d+)$')
-    speed_re = re.compile(r'^set_speed:(\d+)$')
+    speed_re = re.compile(r'^set_speed:([0-9]+)$')
 
     def __init__(self):
         self.servos = {

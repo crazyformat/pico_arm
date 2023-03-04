@@ -1,8 +1,10 @@
+import sys
 from utime import sleep
 from _thread import start_new_thread
 
 from serial_reader import *
 from machine import Pin
+from pico_bootsel import bootsel
 
 from arm import Arm
 
@@ -18,4 +20,7 @@ if __name__ == "__main__":
         if line:
             arm.process_command(line)
         led.toggle()
+        if bootsel.pressed():
+            print("exiting back to micropython")
+            sys.exit()
         sleep(POLL_INTERVAL)

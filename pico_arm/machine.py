@@ -2,8 +2,9 @@
 
 class Pin:
     """mock for pin"""
-    def __init__(self, pin):
+    def __init__(self, pin, mode=None):
         self.pin = pin
+        self.mode = mode
 
 
 class PWM:

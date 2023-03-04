@@ -1,5 +1,4 @@
-from time import sleep
-
+import time
 
 def sleep(t):
-    sleep(t)
+    time.sleep(t)

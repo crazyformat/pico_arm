@@ -1,0 +1,3 @@
+[submodule "pico_arm/pico_bootsel"]
+	path = pico_arm/pico_bootsel
+	url = https://github.com/cfreshman/pico-bootsel.git

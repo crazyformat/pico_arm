@@ -1,11 +1,10 @@
 from arm import Arm
 
+
 def test_arm():
     arm = Arm()
     assert arm is not None
-    return
 
-    
 def test_ping(capsys):
     arm = Arm()
     arm.process_command("ping")
@@ -32,7 +31,7 @@ def test_set_angle(capsys):
 
     arm.process_command("set_angle:ss_0:1000")
     captured = capsys.readouterr()
-    assert captured.out == "can't set angle outside of range [0;165]\n"
+    assert captured.out == "can't set angle outside of range [0;165]\ndone\n"
     
     # good cases
     arm.process_command("set_angle:ss_0:0")
@@ -42,6 +41,7 @@ def test_set_angle(capsys):
 def test_set_speed(capsys):
     arm = Arm()
     arm.process_command("set_speed:123")
+    capsys.readouterr()
     arm.process_command("set_speed:-100")
     captured = capsys.readouterr()
     assert captured.out == "wrong set_speed command format\n"
