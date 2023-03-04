@@ -83,6 +83,7 @@ class Claw(Servo):
         self.set_angle(150)
         time.sleep(0.4)
 
+# update angles to duty for wider range
 class RoboArm:
     def __init__(self, log, js, ser):
         self.log = log
