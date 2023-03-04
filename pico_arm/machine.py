@@ -1,11 +1,15 @@
 # pylint: disable=too-few-public-methods
 
 class Pin:
+    OUT = "OUT"
+    
     """mock for pin"""
     def __init__(self, pin, mode=None):
         self.pin = pin
         self.mode = mode
-
+        
+    def toggle(self):
+        return True
 
 class PWM:
     """mock for pwn"""
