@@ -18,6 +18,7 @@ def read_command():
     buf = []
     while True:
         new_chr = sys.stdin.read(1)
+        print(f"DEBUG: got char: [{new_chr}]")
         if new_chr == '\x0a':
             cmd = str(buf)
             return cmd
@@ -29,7 +30,9 @@ def run_arm():
     led = Pin(25, Pin.OUT)
     led.toggle()
     while True:
+        print("DEBUG: waiting for command")
         command = read_command()
+        print(f"DEBUG: got command: {command}")
         if command == "exit":
             sys.exit()
         arm.process_command(command)
