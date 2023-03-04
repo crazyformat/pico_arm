@@ -62,8 +62,11 @@ class Servo:
         # angle to duty u16
         ratio = (self.max - self.min) / 165
         target_pos = int(angle * ratio + self.min)
-        for pos in range(int(self.curr_pos), target_pos, int(self.step)):
-            # print(f"DEBUG: moving to {pos}")
+        direction = 1  # move forward
+        if target_pos < self.curr_pos:
+            direction = -1
+        for pos in range(int(self.curr_pos), target_pos, self.step * direction):
+            print(f"DEBUG: moving to {pos}")
             self.pwm.duty_u16(pos)
             utime.sleep(MOVE_DELAY)
         self.curr_pos = target_pos
