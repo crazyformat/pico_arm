@@ -1,5 +1,5 @@
 import re
-from servo import SmallServo
+from servo import SmallServo, ServoException
 
 
 class Arm:
@@ -46,8 +46,11 @@ class Arm:
         if m:
             (servo, angle) = m.groups()
             if servo in self.servos:
-                self.servos[servo].set_angle(angle)
-                print("done")
+                try:
+                    self.servos[servo].set_angle(angle)
+                    print("done")
+                except ServoException as ex:
+                    print(f"failed:error=[{ex}]")
             else:
                 print("Error: servo {} is not available".format(servo))
         else:

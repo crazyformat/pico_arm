@@ -7,6 +7,10 @@ import utime
 
 MOVE_DELAY = 0.01  # 10ms
 
+class ServoException(Exception):
+    """Indicate failure on servo commands"""
+    pass
+
 class Servo:
     """Simple wrapper class for servos"""
     # safe default values, redefined per servo type
@@ -43,8 +47,8 @@ class Servo:
     def set_angle(self, angle):
         """Set servo position to a certain agnle"""
         angle_int = int(angle)
-        if angle_int < 0 or angle_int > 165:
-            print("can't set angle outside of range [0;165]")
+        if angle_int < 0 or angle_int > 165:    
+            raise ServoException("can't set angle outside of range [0;165]")
         else:
             self.move_to_angle(angle_int)
 
@@ -59,7 +63,7 @@ class Servo:
         ratio = (self.max - self.min) / 165
         target_pos = int(angle * ratio + self.min)
         for pos in range(int(self.curr_pos), target_pos, int(self.step)):
-            print(f"DEBUG: moving to {pos}")
+            # print(f"DEBUG: moving to {pos}")
             self.pwm.duty_u16(pos)
             utime.sleep(MOVE_DELAY)
         self.curr_pos = target_pos

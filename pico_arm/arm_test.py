@@ -31,7 +31,7 @@ def test_set_angle(capsys):
 
     arm.process_command("set_angle:ss_0:1000")
     captured = capsys.readouterr()
-    assert captured.out == "can't set angle outside of range [0;165]\ndone\n"
+    assert captured.out == "failed:error=[can't set angle outside of range [0;165]]\n"
     
     # good cases
     arm.process_command("set_angle:ss_0:0")
