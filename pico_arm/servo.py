@@ -27,7 +27,7 @@ class Servo:
         """Set servo to min position"""
         # set default freq to 50
         self.pwm.freq(50)
-        self.pwm.duty_u16(self.min)
+        self.set_angle(0)
         self.curr_pos = self.min
 
     def calibrate(self):
@@ -42,11 +42,11 @@ class Servo:
 
     def set_angle(self, angle):
         """Set servo position to a certain agnle"""
-        angle = int(angle)
-        if angle < 0 or angle > 165:
+        angle_int = int(angle)
+        if angle_int < 0 or angle_int > 165:
             print("can't set angle outside of range [0;165]")
         else:
-            self.move_to_angle(angle)
+            self.move_to_angle(angle_int)
 
     def move_to_angle(self, angle):
         """
@@ -54,6 +54,7 @@ class Servo:
         Servo will move faster and less smooth with higher speed and
         smoother with lower speed.
         """
+        angle = int(angle)
         # angle to duty u16
         ratio = (self.max - self.min) / 165
         target_pos = angle * ratio + self.min
