@@ -14,6 +14,7 @@ if __name__ == "__main__":
     arm = Arm()
     # start serial reader thread
     bufferSTDINthread = start_new_thread(bufferSTDIN, ())
+    bufferSTDINthread.daemon = True
     led = Pin(25, Pin.OUT)
     while True:
         line = getLineBuffer()
@@ -22,5 +23,6 @@ if __name__ == "__main__":
         led.toggle()
         if bootsel.pressed():
             print("exiting back to micropython")
+            terminateThread = True
             sys.exit()
         sleep(POLL_INTERVAL)

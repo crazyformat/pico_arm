@@ -59,6 +59,7 @@ class Servo:
         ratio = (self.max - self.min) / 165
         target_pos = int(angle * ratio + self.min)
         for pos in range(int(self.curr_pos), target_pos, int(self.step)):
+            print(f"DEBUG: moving to {pos}")
             self.pwm.duty_u16(pos)
             utime.sleep(MOVE_DELAY)
         self.curr_pos = target_pos
