@@ -10,11 +10,10 @@ from arm import Arm
 
 POLL_INTERVAL = 0.005
 
-if __name__ == "__main__":
+def run_arm():
     arm = Arm()
     # start serial reader thread
     bufferSTDINthread = start_new_thread(bufferSTDIN, ())
-    bufferSTDINthread.daemon = True
     led = Pin(25, Pin.OUT)
     while True:
         line = getLineBuffer()
@@ -26,3 +25,7 @@ if __name__ == "__main__":
             terminateThread = True
             sys.exit()
         sleep(POLL_INTERVAL)
+
+if __name__ == "__main__":
+    run_arm()
+

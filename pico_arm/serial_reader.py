@@ -28,7 +28,11 @@ def bufferSTDIN():
         if terminateThread:                     # if requested by main thread ...
             break  # ... exit loop
         # wait for/store next byte from USB serial
-        buffer[bufferNextIn] = stdin.read(1)
+        try:
+            buffer[bufferNextIn] = stdin.read(1)
+        except Exception:
+            # ignore random exceptions
+            continue
         if bufferEcho:                          # if echo is True ...
             # ... output byte to USB serial
             print(buffer[bufferNextIn], end='')

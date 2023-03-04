@@ -5,7 +5,7 @@ classes with correct min/max values for diffrent types of servos.
 from machine import Pin, PWM
 import utime
 
-MOVE_DELAY = 0.01  # 10ms
+MOVE_DELAY = 0.005  # 5ms
 
 class ServoException(Exception):
     """Indicate failure on servo commands"""
@@ -66,14 +66,14 @@ class Servo:
         if target_pos < self.curr_pos:
             direction = -1
         for pos in range(int(self.curr_pos), target_pos, self.step * direction):
-            print(f"DEBUG: moving to {pos}")
+            # print(f"DEBUG: moving to {pos}")
             self.pwm.duty_u16(pos)
             utime.sleep(MOVE_DELAY)
         self.curr_pos = target_pos
 
     def set_speed(self, speed):
         """Set speed with which servo will be moving to a certain angle"""
-        self.step = speed
+        self.step = int(speed)
 
 class SmallServo(Servo):
     """Micro (8g) servo"""

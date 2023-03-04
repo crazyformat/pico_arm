@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import time
+from termcolor import colored
 
 BASE_SERVO_AXIS = 'LAS -X'
 LOWER_INCLINE_AXIS = 'RAS -Y'
@@ -16,6 +17,14 @@ def js_position_to_step(pos):
     # min-max: -32767:32767
     return (pos // 0.4) + 1
 
+LEVEL_TO_FORMAT = {
+    "info": ["green", "on_dark_grey"],
+    "err": ["red", "on_dark_grey"],
+}
+
+def print_local(level, msg):
+    format = LEVEL_TO_FORMAT[level]
+    print(f"[{colored(level, *format)}] {msg}") 
 
 class Servo:
     def __init__(
@@ -43,26 +52,26 @@ class Servo:
     def set_angle(self, angle):
         if self.min_angle <= angle <= self.max_angle:
             self.angle = int(angle)
-            print(f"set_angle:{self.servo_id}:{int(angle)}\n".encode('utf-8'))
+            print_local("info", f"set_angle:{self.servo_id}:{int(angle)}\n".encode('utf-8'))
             self.serial.write(f"set_angle:{self.servo_id}:{int(angle)}\n".encode('utf-8'))
             res = self.serial.readline()
             res = res.strip().decode('utf-8')
             if res == "done":
-                print("command accepted")
+                print_local("info", "command accepted")
             else:
-                print(f"didn't get expected response: res = {res}")
+                print_local("err", f"didn't get expected response: res = {colored(res, attrs=['bold'])}")
         else:
-            print(f"trying to set angle out of allowed values: {angle}")
+            print_local("err",f"trying to set angle out of allowed values: {angle}")
 
 
 
 class Claw(Servo):
     def grab(self):
         # open claw wide
-        print("setting angle to 50")
+        print_local("info", "setting angle to 50")
         self.set_angle(50)
         time.sleep(0.4)
-        print("setting angle to 150")
+        print_local("info", "setting angle to 150")
         self.set_angle(150)
         time.sleep(0.4)
 
@@ -112,13 +121,13 @@ class RoboArm:
         if self.js.beenPressed('START'):
             new_speed = self.servo_speed + 10
             if MIN_SERVO_SPEED < new_speed < MAX_SERVO_SPEED:
-                print(f"start pressed, increasing speed, new speed: {new_speed}")
+                print_local("info", f"start pressed, increasing speed, new speed: {new_speed}")
                 self.servo_speed = new_speed
                 self.set_servo_speed()
         elif self.js.beenPressed('SELECT'):
             new_speed = self.servo_speed - 10
             if MIN_SERVO_SPEED < new_speed < MAX_SERVO_SPEED:
-                print(f"select pressed, decreasing speed, new speed: {new_speed}")
+                print_local("info", f"select pressed, decreasing speed, new speed: {new_speed}")
                 self.servo_speed = new_speed
                 self.set_servo_speed()
 
@@ -126,10 +135,10 @@ class RoboArm:
     def process_claw(self):
         # claw control, either open or closed
         if self.js.isPressed('RB') or self.js.isPressed('RB'):
-            print("RB, moving right")
+            print_local("info", "RB, moving right")
             self.claw.move(2)
         elif self.js.isPressed('LB') or self.js.isPressed('LB'):
-            print("LB, moving left")
+            print_local("info", "LB, moving left")
             self.claw.move(-2)
 
         # claw is a different type of axis
@@ -141,7 +150,7 @@ class RoboArm:
         # values close to -32767 means claw is open
         claw_axis_pos = self.js.axis('RT')
         if claw_axis_pos != -1:
-            print(f"moving claw, {claw_axis_pos}")
+            print_local("info", f"moving claw, {claw_axis_pos}")
             claw_axis_pos += 1
             pos_to_angle = claw_axis_pos / \
                 ( 2 / MAX_SERVO_ANGLE)
@@ -150,34 +159,34 @@ class RoboArm:
     def process_movements(self):
         base_axis_pos = self.js.axis(BASE_SERVO_AXIS)
         if base_axis_pos > 0.05 or base_axis_pos < -0.05:
-            print("moving base servo")
+            print_local("info", "moving base servo")
             self.base.move(js_position_to_step(base_axis_pos))
 
         upper_incl_axis_pos = self.js.axis(UPPER_INCLINE_AXIS)
         if upper_incl_axis_pos > 0.05 or upper_incl_axis_pos < -0.05:
-            print("moving upper incline servo")
+            print_local("info", "moving upper incline servo")
             self.upper_incl.move(js_position_to_step(
                 upper_incl_axis_pos
             ))
         lower_incl_axis_pos = self.js.axis(LOWER_INCLINE_AXIS)
         if lower_incl_axis_pos > 0.05 or lower_incl_axis_pos < -0.05:
-            print("moving lower incline servo")
+            print_local("info", "moving lower incline servo")
             self.lower_incl.move(js_position_to_step(
                 lower_incl_axis_pos
             ))
 
     def process_actions(self):
         if self.js.beenPressed('A'):
-            print("A - claw grab")
+            print_local("info", "A - claw grab")
             self.claw_grab()
         if self.js.beenPressed('B'):
-            print("B - attack")
+            print_local("info", "B - attack")
             self.attack()
         if self.js.beenPressed('X'):
-            print("X - cobra pose")
+            print_local("info", "X - cobra pose")
             self.cobra_pose()
         if self.js.beenPressed('Y'):
-            print("Y - shrunk pose")
+            print_local("info", "Y - shrunk pose")
             self.shrunk()
 
     # get back to balanced pose, reset servo speed
